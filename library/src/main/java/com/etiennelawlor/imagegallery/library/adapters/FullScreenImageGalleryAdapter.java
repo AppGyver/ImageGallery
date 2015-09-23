@@ -1,6 +1,8 @@
 package com.etiennelawlor.imagegallery.library.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.graphics.Palette;
@@ -14,9 +16,11 @@ import android.widget.LinearLayout;
 
 import com.etiennelawlor.imagegallery.library.R;
 import com.etiennelawlor.imagegallery.library.enums.PaletteColorType;
+import com.etiennelawlor.imagegallery.library.util.ImageGalleryUtils;
 import com.etiennelawlor.imagegallery.library.view.PaletteTransformation;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +41,7 @@ public class FullScreenImageGalleryAdapter extends PagerAdapter {
     // endregion
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(final ViewGroup container, int position) {
         LayoutInflater inflater = (LayoutInflater) container.getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -49,22 +53,36 @@ public class FullScreenImageGalleryAdapter extends PagerAdapter {
         String image = mImages.get(position);
 
         if(!TextUtils.isEmpty(image)){
-            Picasso.with(imageView.getContext())
-                    .load(image)
-                    .transform(PaletteTransformation.instance())
-                    .into(imageView, new PaletteTransformation.PaletteCallback(imageView) {
-                        @Override
-                        public void onError() {
+            if(image.matches("^http.*")) {
 
-                        }
+                int width = ImageGalleryUtils.getScreenWidth(container.getContext());
+                int height = ImageGalleryUtils.getScreenHeight(container.getContext());
 
-                        @Override
-                        public void onSuccess(Palette palette) {
-                            int bgColor = getBackgroundColor(palette);
-                            if(bgColor != -1)
-                                linearLayout.setBackgroundColor(bgColor);
-                        }
-                    });
+                String imageUrl = ImageGalleryUtils.getFormattedImageUrl(image, width, height);
+
+                Picasso.with(imageView.getContext())
+                       .load(imageUrl)
+                       .transform(PaletteTransformation.instance())
+                       .into(imageView, new PaletteTransformation.PaletteCallback(imageView) {
+                           @Override
+                           public void onError() {
+
+                           }
+
+                           @Override
+                           public void onSuccess(Palette palette) {
+                               int bgColor = getBackgroundColor(palette);
+                               if (bgColor != -1)
+                                   linearLayout.setBackgroundColor(bgColor);
+                           }
+                       });
+            }
+            else{
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                Bitmap bitmap = BitmapFactory.decodeFile(image, options);
+                imageView.setImageBitmap(bitmap);
+            }
         } else {
             imageView.setImageDrawable(null);
         }

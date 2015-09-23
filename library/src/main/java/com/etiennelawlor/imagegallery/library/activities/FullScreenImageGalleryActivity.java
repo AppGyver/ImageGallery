@@ -103,17 +103,7 @@ public class FullScreenImageGalleryActivity extends AppCompatActivity {
     }
 
     private void setUpViewPager(){
-        ArrayList<String> images = new ArrayList<>();
-
-        int width = ImageGalleryUtils.getScreenWidth(this);
-        int height = ImageGalleryUtils.getScreenHeight(this);
-
-        for(String image : mImages){
-            String imageUrl = ImageGalleryUtils.getFormattedImageUrl(image, width, height);
-            images.add(imageUrl);
-        }
-
-        mFullScreenImageGalleryAdapter = new FullScreenImageGalleryAdapter(images, mPaletteColorType);
+        mFullScreenImageGalleryAdapter = new FullScreenImageGalleryAdapter(mImages, mPaletteColorType);
         mViewPager.setAdapter(mFullScreenImageGalleryAdapter);
         mViewPager.addOnPageChangeListener(mViewPagerOnPageChangeListener);
         mViewPager.setCurrentItem(mPosition);

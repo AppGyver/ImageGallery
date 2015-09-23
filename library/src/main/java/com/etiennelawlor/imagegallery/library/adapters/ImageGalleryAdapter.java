@@ -1,5 +1,7 @@
 package com.etiennelawlor.imagegallery.library.adapters;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -54,12 +56,22 @@ public class ImageGalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         final ImageViewHolder holder = (ImageViewHolder) viewHolder;
 
         String image = mImages.get(position);
-        String formattedImageUrl = ImageGalleryUtils.getFormattedImageUrl(image, mGridItemWidth, mGridItemHeight);
 
-        if(!TextUtils.isEmpty(formattedImageUrl)){
-            Picasso.with(holder.mImageView.getContext())
-                    .load(formattedImageUrl)
-                    .into(holder.mImageView);
+        if(!TextUtils.isEmpty(image)){
+            if(image.matches("^http.*")) {
+                String formattedImageUrl = ImageGalleryUtils
+                        .getFormattedImageUrl(image, mGridItemWidth, mGridItemHeight);
+
+                Picasso.with(holder.mImageView.getContext())
+                       .load(formattedImageUrl)
+                       .into(holder.mImageView);
+            }
+            else{
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                Bitmap bitmap = BitmapFactory.decodeFile(image, options);
+                holder.mImageView.setImageBitmap(bitmap);
+            }
         } else {
             holder.mImageView.setImageDrawable(null);
         }
